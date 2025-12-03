@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopt Me! Inventar</title>
+
+    <style>
+        /* --- Allgemeine Stile --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #800080; /* Lila */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border: 6px solid #ffcc00; /* Goldgelb */
+        }
+        h1 {
+            color: #ff69b4; /* Pink */
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px #ffe6f0;
+            font-size: 2.5em;
+        }
+        /* Style für alle Eingaben und Buttons */
+        input[type="text"], input[type="number"], input[type="password"], button {
+            transition: all 0.3s ease-in-out;
+        }
+        input[type="text"], input[type="number"], input[type="password"] {
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px; /* Abstand hinzugefügt */
+        }
+        input:focus {
+            border-color: #ff69b4;
+            box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #3cb371; /* Meergrün */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 17px;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2e8b57;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Spezifische Styles für neue Buttons */
+        .save-button, .logout-button {
+            background-color: #007bff; /* Blau */
+        }
+        .youtube-button {
+            background-color: #ff0000; /* YouTube Rot */
+            margin-top: 10px;
+        }
+        .youtube-button:hover {
+            background-color: #cc0000;
+        }
+        .auth-button {
+            background-color: #ff69b4; /* Pink */
+            margin-top: 15px;
+        }
+        .auth-button:hover {
+            background-color: #e05e9e;
+        }
+
+        /* --- Inventar-spezifische Stile --- */
+        #input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 3px dashed #00bfff; /* Tiefblau */
+            border-radius: 12px;
+            background-color: #f0f8ff; /* Aliceblue */
+        }
+        #input-area input {
+            margin-bottom: 0; /* Entferne den zusätzlichen Abstand hier */
+        }
+        #input-area button {
+            width: auto;
+            flex-shrink: 0;
+            margin-top: 0;
+        }
+
+        #pet-list {
+            list-style: none;
+            padding: 0;
+        }
+        #pet-list li {
+            background-color: #fffacd; /* Hellgelb */
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.3s;
+        }
+        .pet-name {
+            font-weight: bold;
+            color: #8a2be2; /* Blauviolett */
+            flex-grow: 1;
+            font-size: 1.1em;
+        }
+        .pet-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pet-count {
+            background-color: #ffcc00; /* Goldgelb */
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 800;
+            min-width: 30px;
+            text-align: center;
+            border: 2px solid #ffaa00;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            /* Animation für die Änderung */
+            animation: count-pulse 0.5s ease-out;
+        }
+
+        /* Keyframes für die Zähler-Animation */
+        @keyframes count-pulse {
+            0% { transform: scale(1); background-color: #ffcc00; }
+            50% { transform: scale(1.1); background-color: #fffacd; }
+            100% { transform: scale(1); background-color: #ffcc00; }
+        }
+
+        .control-button {
+            padding: 5px 10px;
+            font-size: 20px;
+            line-height: 1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s;
+        }
+        .control-button:active {
+            transform: scale(0.95);
+        }
+        .control-button.plus {
+            background-color: #3cb371; /* Meergrün */
+            color: white;
+        }
+        .control-button.minus {
+            background-color: #ff6347; /* Tomate */
+            color: white;
+        }
+        #total-pets-display {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #ffb6c1; /* Hellrosa */
+            border: 3px solid #ff69b4; /* Pink */
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 800;
+            color: #333;
+        }
+
+        /* Neue Styles für Login/Register */
+        #auth-area {
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 3px solid #ff69b4;
+            border-radius: 12px;
+            background-color: #ffe6f0;
+            text-align: center;
+        }
+
+        #login-register-inputs {
+            display: none;
+            margin-top: 15px;
+        }
+
+        #logged-in-user {
+            font-weight: bold;
+            color: #8a2be2;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>dein Adopt Me! Inventar 🦄</h1>
+
+        <div id="auth-area">
+            <div id="logged-in-status">
+                <div id="logged-in-user" style="display:none;"></div>
+                <button id="show-login-btn" class="auth-button" onclick="toggleAuthInputs(true)">Anmelden / Registrieren</button>
+                <button id="logout-btn" class="logout-button" style="display:none;" onclick="logout()">Abmelden</button>
+            </div>
+
+            <div id="login-register-inputs">
+                <input type="text" id="username" placeholder="Benutzername" required>
+                <input type="password" id="password" placeholder="Passwort" required>
+                <div style="display: flex; gap: 10px;">
+                    <button class="auth-button" style="background-color: #3cb371; width: 50%;" onclick="register()">Registrieren</button>
+                    <button class="auth-button" style="background-color: #007bff; width: 50%;" onclick="login()">Anmelden</button>
+                </div>
+            </div>
+        </div>
+        <div id="inventory-container" style="display:none;">
+            <div id="input-area">
+                <input type="text" id="petName" placeholder="Name des Haustieres (z.B. Shadow Dragon)" required>
+                <input type="number" id="petCount" placeholder="Anzahl" min="1" value="1" required>
+                <button onclick="addPet()">Hinzufügen</button>
+            </div>
+
+            <h2>Meine Haustiere:</h2>
+            <ul id="pet-list"></ul>
+
+            <div id="total-pets-display">
+                Gesamte Haustier-Anzahl: <span id="total-count">0</span>
+            </div>
+
+            <hr style="border-top: 1px solid #ccc; margin: 25px 0;">
+
+            <button onclick="savePetsDirect()" class="save-button">💾 Inventar speichern (Lokal)</button>
+
+        </div>
+        <button onclick="goToGrapeBinox()" class="youtube-button">🎬 GrapeBinox YouTube Kanal</button>
+    </div>
+
+    <script>
+        // Lokale Speicherschlüssel
+        const ALL_USERS_KEY = 'adoptMeUsers_Secure'; // Speichert alle Benutzer und ihre gehashten Passwörter
+        const LOGGED_IN_USER_KEY = 'adoptMeLoggedInUser'; // Speichert den aktuell angemeldeten Benutzer
+        const INVENTORY_PREFIX = 'adoptMeInventory_'; // Prefix für das Inventar pro Benutzer
+
+        // --- HILFSFUNKTIONEN (Sicherheit, NUR CLIENTSEITIG) ---
+        // Simpler, unsicherer Hash für die Demo, NICHT FÜR DIE PRODUKTION VERWENDEN
+        function simpleHash(str) {
+            let hash = 0;
+            if (str.length === 0) return hash;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0; // Zu 32bit Integer konvertieren
+            }
+            return hash.toString();
+        }
+
+        function getStoredUsers() {
+            const usersJson = localStorage.getItem(ALL_USERS_KEY);
+            return usersJson ? JSON.parse(usersJson) : {};
+        }
+
+        function setStoredUsers(users) {
+            localStorage.setItem(ALL_USERS_KEY, JSON.stringify(users));
+        }
+
+        // --- AUTHENTIFIZIERUNGS-FUNKTIONEN ---
+
+        function toggleAuthInputs(show) {
+            const loginInputs = document.getElementById('login-register-inputs');
+            loginInputs.style.display = show ? 'block' : 'none';
+            document.getElementById('show-login-btn').style.display = show ? 'none' : 'block';
+        }
+
+        function updateUI(username) {
+            const loggedInUserDiv = document.getElementById('logged-in-user');
+            const inventoryContainer = document.getElementById('inventory-container');
+            const showLoginBtn = document.getElementById('show-login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (username) {
+                // Angemeldet
+                loggedInUserDiv.textContent = `Angemeldet als: ${username}`;
+                loggedInUserDiv.style.display = 'block';
+                inventoryContainer.style.display = 'block';
+                showLoginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                toggleAuthInputs(false);
+                loadPets(username); // Inventar des angemeldeten Benutzers laden
+            } else {
+                // Abgemeldet
+                loggedInUserDiv.style.display = 'none';
+                inventoryContainer.style.display = 'none';
+                showLoginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                document.getElementById('pet-list').innerHTML = ''; // Liste leeren
+                updateTotalCount();
+            }
+        }
+
+        function register() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (username.length < 3 || password.length < 6) {
+                alert("Benutzername muss mindestens 3 Zeichen und Passwort mindestens 6 Zeichen lang sein.");
+                return;
+            }
+
+            const users = getStoredUsers();
+            if (users[username]) {
+                alert("Benutzername existiert bereits!");
+                return;
+            }
+
+            const hashedPassword = simpleHash(password);
+            users[username] = { hash: hashedPassword };
+            setStoredUsers(users);
+
+            alert(`Registrierung von '${username}' erfolgreich!`);
+            // Optional: Nach der Registrierung direkt anmelden
+            login();
+        }
+
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            const users = getStoredUsers();
+            const user = users[username];
+
+            if (!user) {
+                alert("Benutzername nicht gefunden.");
+                return;
+            }
+
+            const hashedPassword = simpleHash(password);
+
+            if (user.hash === hashedPassword) {
+                localStorage.setItem(LOGGED_IN_USER_KEY, username);
+                alert(`Anmeldung erfolgreich! Willkommen, ${username}.`);
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                updateUI(username);
+            } else {
+                alert("Falsches Passwort.");
+            }
+        }
+
+        function logout() {
+            // Erst das aktuelle Inventar speichern
+            savePetsDirect();
+
+            localStorage.removeItem(LOGGED_IN_USER_KEY);
+            alert("Sie wurden abgemeldet.");
+            updateUI(null);
+        }
+
+        // --- SPEICHERN UND LADEN FUNKTIONEN (JETZT BENUTZERSPEZIFISCH) ---
+
+        function getInventoryKey() {
+            const username = localStorage.getItem(LOGGED_IN_USER_KEY);
+            return username ? INVENTORY_PREFIX + username : null;
+        }
+
+        function savePetsDirect() {
+            const key = getInventoryKey();
+            if (!key) {
+                console.warn("Nicht angemeldet. Inventar nicht gespeichert.");
+                return;
+            }
+
+            const pets = [];
+            document.querySelectorAll('#pet-list li').forEach(listItem => {
+                const name = listItem.querySelector('.pet-name').textContent;
+                const count = parseInt(listItem.querySelector('.pet-count').getAttribute('data-count'));
+                pets.push({ name, count });
+            });
+            localStorage.setItem(key, JSON.stringify(pets));
+
+            const saveButton = document.querySelector('.save-button');
+            saveButton.textContent = '✅ Gespeichert!';
+            setTimeout(() => {
+                saveButton.textContent = '💾 Inventar speichern (Lokal)';
+            }, 1500);
+        }
+
+        function loadPets(username) {
+            const petList = document.getElementById('pet-list');
+            petList.innerHTML = '';
+            const key = INVENTORY_PREFIX + username;
+            const storedPets = localStorage.getItem(key);
+
+            if (storedPets) {
+                try {
+                    const pets = JSON.parse(storedPets);
+                    pets.forEach(pet => {
+                        const listItem = createPetListItem(pet.name, pet.count);
+                        petList.appendChild(listItem);
+                    });
+                } catch (e) {
+                    console.error("Fehler beim Laden/Parsen des Inventars:", e);
+                    localStorage.removeItem(key);
+                }
+            }
+            updateTotalCount();
+        }
+
+        function createPetListItem(name, count) {
+             const listItem = document.createElement('li');
+             const initialCount = Math.max(1, count || 1);
+             listItem.innerHTML = `
+                <span class="pet-name">${name}</span>
+                <div class="pet-controls">
+                    <button class="control-button minus" onclick="changeCount(this, -1)">-</button>
+                    <span class="pet-count" data-count="${initialCount}">${initialCount}</span>
+                    <button class="control-button plus" onclick="changeCount(this, 1)">+</button>
+                </div>
+            `;
+            return listItem;
+        }
+
+
+        // --- HAUSTIER VERWALTUNGS FUNKTIONEN (Unverändert, ruft savePetsDirect auf) ---
+
+        function addPet() {
+            if (!localStorage.getItem(LOGGED_IN_USER_KEY)) {
+                alert("Bitte melden Sie sich zuerst an!");
+                return;
+            }
+
+            const nameInput = document.getElementById('petName');
+            const countInput = document.getElementById('petCount');
+            const petList = document.getElementById('pet-list');
+
+            const name = nameInput.value.trim();
+            const count = parseInt(countInput.value);
+
+            if (name === "" || isNaN(count) || count <= 0) {
+                alert("Bitte geben Sie einen gültigen Namen und eine positive Anzahl ein!");
+                return;
+            }
+
+            let existingPet = null;
+            document.querySelectorAll('#pet-list li').forEach(li => {
+                if (li.querySelector('.pet-name').textContent.toLowerCase() === name.toLowerCase()) {
+                    existingPet = li;
+                }
+            });
+
+            if (existingPet) {
+                const countSpan = existingPet.querySelector('.pet-count');
+                let currentCount = parseInt(countSpan.getAttribute('data-count'));
+                let newCount = currentCount + count;
+
+                countSpan.setAttribute('data-count', newCount);
+                countSpan.textContent = newCount;
+
+                countSpan.style.animation = 'none';
+                void countSpan.offsetWidth;
+                countSpan.style.animation = 'count-pulse 0.5s ease-out';
+
+            } else {
+                const listItem = createPetListItem(name, count);
+                petList.appendChild(listItem);
+            }
+
+            nameInput.value = '';
+            countInput.value = '1';
+            updateTotalCount();
+            savePetsDirect();
+        }
+
+        function changeCount(buttonElement, delta) {
+            if (!localStorage.getItem(LOGGED_IN_USER_KEY)) {
+                alert("Bitte melden Sie sich zuerst an!");
+                return;
+            }
+
+            const countSpan = buttonElement.parentNode.querySelector('.pet-count');
+            let currentCount = parseInt(countSpan.getAttribute('data-count'));
+            let newCount = currentCount + delta;
+            const listItem = buttonElement.closest('li');
+
+            if (newCount <= 0) {
+                if (confirm(`Soll '${listItem.querySelector('.pet-name').textContent}' wirklich aus der Liste entfernt werden?`)) {
+                    listItem.remove();
+                } else {
+                    return;
+                }
+            } else {
+                countSpan.setAttribute('data-count', newCount);
+                countSpan.textContent = newCount;
+
+                countSpan.style.animation = 'none';
+                void countSpan.offsetWidth;
+                countSpan.style.animation = 'count-pulse 0.5s ease-out';
+            }
+
+            updateTotalCount();
+            savePetsDirect();
+        }
+
+        function updateTotalCount() {
+            const petCounts = document.querySelectorAll('#pet-list .pet-count');
+            let total = 0;
+
+            petCounts.forEach(item => {
+                const count = parseInt(item.getAttribute('data-count'));
+                if (!isNaN(count)) {
+                    total += count;
+                }
+            });
+
+            document.getElementById('total-count').textContent = total;
+        }
+
+        // --- SONSTIGE FUNKTIONEN ---
+        function goToGrapeBinox() {
+            window.open('https://www.youtube.com/@binox_baba8787', '_blank');
+        }
+
+        // SEITENSTART
+        (function init() {
+            const loggedInUser = localStorage.getItem(LOGGED_IN_USER_KEY);
+            updateUI(loggedInUser);
+        })();
+    </script>
+
+</body>
+</html>
+Grape Studio
